@@ -27,14 +27,24 @@ Acesse `http://localhost:3000` no navegador.
 ```
 ├── index.html
 ├── latest_movies.json
-├── css/styles.css
-├── imgs/unesc.png
+├── css/
+│   └── styles.css
+├── imgs/
 └── js/
+    ├── adjacency-view.js
+    ├── app.js
     ├── config.js
     ├── graph.js
+    ├── input-controls.js
+    ├── meta-view.js
+    ├── results-view.js
+    ├── search-controller.js
     ├── seed.js
+    ├── sidebar-view.js
+    ├── status-view.js
+    ├── toast.js
     ├── ui.js
-    └── app.js
+    └── wiki.js
 ```
 
 ## Autores
