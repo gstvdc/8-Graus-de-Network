@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>8 Graus de Network</title>
+    <link rel="stylesheet" href="css/styles.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div
+      class="toast-container"
+      id="toastContainer"
+      aria-live="polite"
+      aria-atomic="true"
+    ></div>
+
+    <header class="site-header">
+      <div class="site-header__brand">
+        <div class="unesc-logo">
+          <img
+            src="imgs/unesc.png"
+            alt="UNESC — Universidade do Extremo Sul Catarinense"
+            class="unesc-logo__img"
+          />
+        </div>
+
+        <div class="site-header__divider"></div>
+
+        <div class="site-header__title">
+          <p class="site-header__institution" id="meta-institution"></p>
+          <p class="site-header__course" id="meta-course"></p>
+          <h1 class="site-header__appname">8 Graus de Network</h1>
+          <p class="site-header__subject" id="meta-subject"></p>
+        </div>
+      </div>
+
+      <div class="site-header__meta">
+        <p class="site-header__professor" id="meta-professor"></p>
+        <ul
+          class="site-header__authors"
+          id="meta-authors"
+          aria-label="Autores"
+        ></ul>
+      </div>
+    </header>
+
+    <main>
+      <aside class="sidebar">
+        <div class="sidebar-card">
+          <h3 class="sidebar-card__title">Estatísticas do Grafo</h3>
+          <div class="stats-grid">
+            <div class="stat-item">
+              <span class="stat-value" id="statActors">—</span>
+              <span class="stat-label">Atores</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-value" id="statMovies">—</span>
+              <span class="stat-label">Filmes</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-value" id="statEdges">—</span>
+              <span class="stat-label">Arestas</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-value" id="statAvgDeg">—</span>
+              <span class="stat-label">Grau Médio</span>
+            </div>
+          </div>
+        </div>
+        <div class="sidebar-card">
+          <h3 class="sidebar-card__title">Top 10 Atores</h3>
+          <ol class="top-actors-list" id="topActorsList">
+            <li class="top-actors-placeholder">Aguardando dados...</li>
+          </ol>
+        </div>
+      </aside>
+
+      <div class="main-content">
+        <div class="card">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="inputOrigin">Ator de Origem</label>
+              <div class="input-wrapper">
+                <svg
+                  class="input-icon"
+                  viewBox="0 0 20 20"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  aria-hidden="true"
+                >
+                  <circle cx="8.5" cy="8.5" r="5.5" />
+                  <path d="M15 15l-3.5-3.5" stroke-linecap="round" />
+                </svg>
+                <input
+                  list="actorList"
+                  id="inputOrigin"
+                  placeholder="Digite ou selecione..."
+                  autocomplete="off"
+                />
+                <button
+                  class="input-clear"
+                  aria-label="Limpar ator de origem"
+                  data-target="inputOrigin"
+                  hidden
+                >
+                  <svg
+                    viewBox="0 0 14 14"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    aria-hidden="true"
+                  >
+                    <line x1="2" y1="2" x2="12" y2="12" />
+                    <line x1="12" y1="2" x2="2" y2="12" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="inputDest">Ator de Destino</label>
+              <div class="input-wrapper">
+                <svg
+                  class="input-icon"
+                  viewBox="0 0 20 20"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  aria-hidden="true"
+                >
+                  <circle cx="8.5" cy="8.5" r="5.5" />
+                  <path d="M15 15l-3.5-3.5" stroke-linecap="round" />
+                </svg>
+                <input
+                  list="actorList"
+                  id="inputDest"
+                  placeholder="Digite ou selecione..."
+                  autocomplete="off"
+                />
+                <button
+                  class="input-clear"
+                  aria-label="Limpar ator de destino"
+                  data-target="inputDest"
+                  hidden
+                >
+                  <svg
+                    viewBox="0 0 14 14"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    aria-hidden="true"
+                  >
+                    <line x1="2" y1="2" x2="12" y2="12" />
+                    <line x1="12" y1="2" x2="2" y2="12" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+          <datalist id="actorList"></datalist>
+
+          <div class="btn-row">
+            <button id="btnBFS">BFS &mdash; Caminho Mínimo</button>
+            <button id="btnBFS8">BFS &mdash; Até 8 Graus</button>
+            <button id="btnShow">Mostrar Grafo</button>
+          </div>
+          <p id="status" role="status" aria-live="polite">
+            Carregando dados...
+          </p>
+        </div>
+
+        <div class="results-section">
+          <div class="result-card" id="bfsCard" hidden>
+            <h2>Resultado BFS &mdash; Caminho Mínimo</h2>
+            <div id="bfsResult"></div>
+          </div>
+
+          <div class="result-card" id="bfs8Card" hidden>
+            <h2>Resultado BFS &mdash; Todos os Caminhos até 8 Graus</h2>
+            <div id="bfs8Result"></div>
+          </div>
+
+          <div class="result-card" id="showCard" hidden>
+            <h2>Lista de Adjacências</h2>
+            <div class="adj-search-row">
+              <input
+                type="search"
+                id="adjSearch"
+                placeholder="Buscar ator ou filme..."
+                autocomplete="off"
+                aria-label="Buscar vértice na lista de adjacências"
+              />
+              <span id="adjSearchCount" class="adj-search-count"></span>
+            </div>
+            <div class="adj-table-wrapper">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Vértice</th>
+                    <th>Adjacentes</th>
+                  </tr>
+                </thead>
+                <tbody id="adjBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <script type="module" src="js/app.js"></script>
+  </body>
+</html>
