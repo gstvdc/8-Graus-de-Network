@@ -62,25 +62,34 @@ export class Graph {
     const path = [src];
     const adj = this._adj;
 
-    function dfs(node, edgesUsed) {
+    function dfs(node, edgesUsed, targetDepth) {
       if (results.length >= maxResults) return;
       for (const neighbor of adj.get(node)) {
-        if (neighbor === dst) {
+        if (results.length >= maxResults) return;
+        if (neighbor === dst && edgesUsed + 1 === targetDepth) {
           results.push([...path, neighbor]);
           continue;
         }
-        if (!visited.has(neighbor) && edgesUsed < maxEdges - 1) {
+        if (!visited.has(neighbor) && edgesUsed + 1 < targetDepth) {
           visited.add(neighbor);
           path.push(neighbor);
-          dfs(neighbor, edgesUsed + 1);
+          dfs(neighbor, edgesUsed + 1, targetDepth);
           path.pop();
           visited.delete(neighbor);
         }
       }
     }
 
-    dfs(src, 0);
-    results.sort((a, b) => a.length - b.length);
+    // Iterative deepening: explore all paths of depth d before depth d+1,
+    // guaranteeing the 500 collected paths are always the shortest ones.
+    for (
+      let depth = 1;
+      depth <= maxEdges && results.length < maxResults;
+      depth++
+    ) {
+      dfs(src, 0, depth);
+    }
+
     return { paths: results, capped: results.length >= maxResults };
   }
 }
