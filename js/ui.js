@@ -2,7 +2,11 @@ export { renderMeta } from "./meta-view.js";
 export { showToast } from "./toast.js";
 export { setStatus } from "./status-view.js";
 export { populateSidebar } from "./sidebar-view.js";
-export { showBfsResult, showBfs8Result } from "./results-view.js";
+export {
+  showBfsResult,
+  showBfs8Result,
+  updateBfs8Total,
+} from "./results-view.js";
 export { toggleAdjacencyList } from "./adjacency-view.js";
 
 export function populateDatalist(actors) {

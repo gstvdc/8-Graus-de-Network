@@ -3,6 +3,12 @@ import { wikiSearchUrl } from "./wiki.js";
 
 const { movie: MOVIE_PREFIX, actor: ACTOR_PREFIX } = CONFIG.prefix;
 
+function vertexLabel(vertex, isMovie) {
+  const prefixLength = isMovie ? MOVIE_PREFIX.length : ACTOR_PREFIX.length;
+  const label = vertex.slice(prefixLength);
+  return isMovie ? label.replace(/^\d+:/, "") : label;
+}
+
 export function toggleAdjacencyList(graph) {
   const card = document.getElementById("showCard");
   const isHidden = card.hidden;
@@ -25,15 +31,13 @@ function buildAdjacencyTable(graph) {
     const tr = document.createElement("tr");
     const isMovie = vertex.startsWith(MOVIE_PREFIX);
     const typeClass = isMovie ? "adj-type-movie" : "adj-type-actor";
-    const label = vertex.slice(
-      isMovie ? MOVIE_PREFIX.length : ACTOR_PREFIX.length,
-    );
+    const label = vertexLabel(vertex, isMovie);
 
     const neighborHtml = [...graph.neighbors(vertex)]
       .map((n) => {
         const nMovie = n.startsWith(MOVIE_PREFIX);
         const cls = nMovie ? "adj-type-movie" : "adj-type-actor";
-        const name = n.slice(nMovie ? MOVIE_PREFIX.length : ACTOR_PREFIX.length);
+        const name = vertexLabel(n, nMovie);
         return `<a class="adj-link ${cls}" href="${wikiSearchUrl(name)}" target="_blank" rel="noopener noreferrer">${name}</a>`;
       })
       .join(", ");

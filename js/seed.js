@@ -9,7 +9,7 @@ export function seedGraph(graph, movies) {
     if (!movie.title || !Array.isArray(movie.cast) || !movie.cast.length)
       continue;
 
-    const movieVertex = `${MOVIE_PREFIX}${movie.title}`;
+    const movieVertex = `${MOVIE_PREFIX}${movie.id}:${movie.title}`;
 
     for (const actor of movie.cast) {
       if (!actor) continue;

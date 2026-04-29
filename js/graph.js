@@ -52,10 +52,64 @@ export class Graph {
     return null;
   }
 
-  bfsAllPaths(src, dst, maxEdges, maxResults = 500) {
-    if (!this._adj.has(src) || !this._adj.has(dst))
-      return { paths: [], capped: false };
-    if (src === dst) return { paths: [[src]], capped: false };
+  adjacencyData() {
+    return [...this._adj.entries()].map(([k, v]) => [k, [...v]]);
+  }
+
+  bfsAllPathsAsync(src, dst, maxEdges, maxResults = 500, onTotal = null) {
+    return new Promise((resolve, reject) => {
+      const worker = new Worker(
+        new URL("./graph.worker.js?v=20260429-2", import.meta.url),
+      );
+      let settled = false;
+      const pathTimeout = setTimeout(() => {
+        worker.terminate();
+        resolve({ paths: [], capped: true, timedOut: true });
+      }, 25_000);
+      worker.onmessage = ({ data }) => {
+        if (data.type === "paths") {
+          clearTimeout(pathTimeout);
+          if (!settled) {
+            settled = true;
+            resolve(data);
+          }
+
+          if (!data.capped) {
+            worker.terminate();
+          } else if (!onTotal) {
+            worker.terminate();
+          }
+          return;
+        }
+
+        if (data.type === "total-progress") {
+          onTotal?.(data.total, false);
+          return;
+        }
+
+        if (data.type === "total") {
+          worker.terminate();
+          onTotal?.(data.total, true);
+        }
+      };
+      worker.onerror = (err) => {
+        clearTimeout(pathTimeout);
+        worker.terminate();
+        reject(err);
+      };
+      worker.postMessage({
+        adj: this.adjacencyData(),
+        src,
+        dst,
+        maxEdges,
+        maxResults,
+      });
+    });
+  }
+
+  bfsAllPaths(src, dst, maxEdges) {
+    if (!this._adj.has(src) || !this._adj.has(dst)) return [];
+    if (src === dst) return [[src]];
 
     const results = [];
     const visited = new Set([src]);
@@ -63,11 +117,11 @@ export class Graph {
     const adj = this._adj;
 
     function dfs(node, edgesUsed, targetDepth) {
-      if (results.length >= maxResults) return;
       for (const neighbor of adj.get(node)) {
-        if (results.length >= maxResults) return;
-        if (neighbor === dst && edgesUsed + 1 === targetDepth) {
-          results.push([...path, neighbor]);
+        if (neighbor === dst) {
+          if (edgesUsed + 1 === targetDepth) {
+            results.push([...path, neighbor]);
+          }
           continue;
         }
         if (!visited.has(neighbor) && edgesUsed + 1 < targetDepth) {
@@ -81,15 +135,11 @@ export class Graph {
     }
 
     // Iterative deepening: explore all paths of depth d before depth d+1,
-    // guaranteeing the 500 collected paths are always the shortest ones.
-    for (
-      let depth = 1;
-      depth <= maxEdges && results.length < maxResults;
-      depth++
-    ) {
+    // guaranteeing results are always ordered shortest first.
+    for (let depth = 1; depth <= maxEdges; depth++) {
       dfs(src, 0, depth);
     }
 
-    return { paths: results, capped: results.length >= maxResults };
+    return results;
   }
 }

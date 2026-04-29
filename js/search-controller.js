@@ -1,12 +1,10 @@
 import { CONFIG } from "./config.js";
-import {
-  getActorInputValues,
-  setInputValue,
-} from "./input-controls.js";
+import { getActorInputValues, setInputValue } from "./input-controls.js";
 import {
   showToast,
   showBfsResult,
   showBfs8Result,
+  updateBfs8Total,
   toggleAdjacencyList,
 } from "./ui.js";
 
@@ -20,17 +18,21 @@ function withLoading(btn, fn) {
   btn.classList.add("btn-loading");
   btn.disabled = true;
 
-  requestAnimationFrame(() => {
-    requestAnimationFrame(() => {
-      try {
-        fn();
-      } finally {
-        btn.textContent = originalText;
-        btn.classList.remove("btn-loading");
-        btn.disabled = false;
-      }
+  const restore = () => {
+    btn.textContent = originalText;
+    btn.classList.remove("btn-loading");
+    btn.disabled = false;
+  };
+
+  new Promise((resolve) => {
+    requestAnimationFrame(() => requestAnimationFrame(resolve));
+  })
+    .then(() => fn())
+    .then(restore)
+    .catch((err) => {
+      restore();
+      console.error(err);
     });
-  });
 }
 
 export function bindSearchControls(graph) {
@@ -64,12 +66,20 @@ export function bindSearchControls(graph) {
       return;
     }
 
-    withLoading(btnBFS8, () => {
-      const { paths, capped } = graph.bfsAllPaths(
+    withLoading(btnBFS8, async () => {
+      const { paths, capped, timedOut } = await graph.bfsAllPathsAsync(
         actorVertex(origin),
         actorVertex(dest),
-        CONFIG.maxDegrees * 2,
+        CONFIG.maxDegrees,
+        500,
+        (total, isFinal) => updateBfs8Total(total, isFinal),
       );
+      if (timedOut) {
+        showToast(
+          "A busca demorou muito e foi interrompida. Tente atores com menos conexões.",
+        );
+        return;
+      }
       showBfs8Result(paths, origin, dest, capped);
     });
   });
